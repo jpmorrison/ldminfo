@@ -48,6 +48,11 @@ void dump_info (char *name, struct parsed_partitions *pp)
 	name = basename (name);
 	numeric = isdigit (name[strlen (name) - 1]);
 
+//	printf (" size_t = %lu\n", sizeof (size_t));
+//	printf (" int    = %lu\n", sizeof (int));
+//	printf (" long    = %lu\n", sizeof (long));
+
+
 	printf ("Device       | Offset Bytes    Sectors    MiB | Size   Bytes    Sectors    MiB\n"
 		"-------------+--------------------------------+-------------------------------\n");
 	for (i = 0; i < 256; i++) {
@@ -82,6 +87,7 @@ int main (int argc, char *argv[])
 	int info = 0;
 	int dump = 0;
 	int copy = 0;
+	int full = 0;
 	int help = 0;
 	int ver  = 0;
 	int dev  = -1;
@@ -93,6 +99,7 @@ int main (int argc, char *argv[])
 		if	(strcmp (argv[a], "--info")    == 0) info++;
 		else if	(strcmp (argv[a], "--dump")    == 0) dump++;
 		else if (strcmp (argv[a], "--copy")    == 0) copy++;
+		else if (strcmp (argv[a], "--full")    == 0) full++;
 		else if (strcmp (argv[a], "--debug")   == 0) debug++;
 		else if (strcmp (argv[a], "--help")    == 0) help++;
 		else if (strcmp (argv[a], "--version") == 0) ver++;
@@ -100,12 +107,13 @@ int main (int argc, char *argv[])
 		argv[a][0] = 0;
 	}
 
-	if (help || (argc - info - dump - copy - debug) < 2) {
+	if (help || (argc - info - dump - copy - full - debug) < 2) {
 		printf ("\nUsage:\n    %s [options] device ...\n", basename (argv[0]));
 		printf ("\nOptions:\n"
 			"    --info     A concise list of partitions (default)\n"
 			"    --dump     The contents of the database in detail\n"
-			"    --copy     Write the database to a file\n"
+			"    --copy     Copy partition table and LDM database\n"
+//			"    --full     Copy full partition table and LDM database\n"
 			"    --debug    Display lots of debugging information\n"
 			"    --version  display the version number\n"
 			"    --help     Show this short help\n\n");
@@ -113,7 +121,7 @@ int main (int argc, char *argv[])
 	}
 
 	if (ver) {
-		printf ("\nldminfo v0.0.8\n\n");
+		printf ("\nldminfo v0.0.9\n\n");
 		return 1;
 	}
 
@@ -164,8 +172,8 @@ int main (int argc, char *argv[])
 			goto free;
 		}
 
-		if (copy)
-			copy_database (dev, argv[a], pp.ldb);
+		if (copy || full)
+			copy_database (dev, argv[a], pp.ldb, full);
 		else if (dump)
 			dump_database (argv[a], pp.ldb);
 		else

@@ -118,7 +118,7 @@ int printk (const char *fmt, ...)
 /**
  * put_partition
  */
-void put_partition(struct parsed_partitions *p, int n, int from, int size)
+void put_partition(struct parsed_partitions *p, int n, sector_t from, sector_t size)
 {
 	if (n < p->limit) {
 		p->parts[n].from = from;
@@ -143,7 +143,7 @@ void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *sect)
 	if (n >= state->size)
 		return NULL;
 
-	int size = 512;
+	size_t size = 512;
 	n *= size;
 
 	sect->data = kmalloc (size, 0);

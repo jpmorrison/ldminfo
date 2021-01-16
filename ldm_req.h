@@ -30,7 +30,11 @@
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define be16_to_cpu(s) bswap_16(s)
 #define be32_to_cpu(s) bswap_32(s)
+#ifdef __GNUC__
+#define be64_to_cpu(s) __builtin_bswap64(s)  // must be a better way to fix this ...
+#else
 #define be64_to_cpu(s) bswap_64(s)
+#endif
 #define cpu_to_le16
 #define cpu_to_le32
 #define cpu_to_le64
@@ -89,7 +93,7 @@ u16 get_unaligned_be16 (const u8 *ptr);
 void *read_part_sector(struct parsed_partitions *state, size_t n, Sector *p);
 void put_dev_sector(Sector p);
 size_t strlcat(char *dest, const char *src, size_t count);
-void put_partition(struct parsed_partitions *pp, int part_num, long long a, long long b);
+void put_partition(struct parsed_partitions *pp, int part_num, sector_t a, sector_t b);
 void list_add(struct list_head *new, struct list_head *head);
 void list_add_tail(struct list_head *new, struct list_head *head);
 

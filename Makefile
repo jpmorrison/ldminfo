@@ -6,7 +6,7 @@ LN	= ln -sf
 RM	= rm -fr
 MKDIR	= mkdir -p
 
-SRC	= compat.c copy.c dump.c ldm.c ldminfo.c
+SRC	= compat.c copy.c dump.c ldm.c ldminfo.c 
 HDR	= common.h ldm.h ldminfo.h ldm_req.h
 
 DEPDIR	= .dep
@@ -14,7 +14,7 @@ OBJDIR	= .obj
 
 OBJ	= $(SRC:%.c=$(OBJDIR)/%.o)
 
-OUT	= ldminfo
+OUT	= ldminfo 
 
 CFLAGS	= -Wall -g
 CFLAGS += -D_FILE_OFFSET_BITS=64
@@ -32,7 +32,8 @@ CFLAGS += -Ilinux
 
 #LFLAGS += -m elf_i386 -r
 
-all:	$(DEPDIR) $(OBJDIR) $(OBJ) $(OUT) tags
+#all:	$(DEPDIR) $(OBJDIR) $(OBJ) $(OUT) tags
+all:	$(DEPDIR) $(OBJDIR) $(OBJ) $(OUT) 
 
 $(DEPDIR) $(OBJDIR):
 	$(MKDIR) $@
@@ -63,8 +64,8 @@ clean:
 distclean: clean
 	$(RM) $(DEPDIR) $(OBJDIR) tags *.img.data *.img.part
 
-tags:	force
-	ctags *.[ch]
+#tags:	force
+#	ctags *.[ch]
 
 force:
 

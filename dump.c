@@ -186,7 +186,7 @@ static int dump_privhead (struct privhead *ph)
 {
 	printf ("PRIVATE HEADER:\n");
 	printf ("Version            : %d.%d\n", ph->ver_major, ph->ver_minor);
-	if (ph->disk_id);
+	if (ph->disk_id)
 		printf ("Disk Id            : %s\n", print_guid (ph->disk_id));
 
 	printf ("Logical disk start : 0x%llX\n",		(unsigned long long) ph->logical_disk_start);

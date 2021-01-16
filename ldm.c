@@ -147,7 +147,7 @@ static bool ldm_checksum (const u8 *data, int size, int checkoff, int checksize)
  */
 char * ldm_get_date (const u8 *data)
 {
-	u64 ldmtime = be64toh (*(u64*)data);
+	u64 ldmtime = be64_to_cpu (*(u64*)data);
 	time_t t = (ldmtime - 116444736000000000LL) / 10000000;
 	return ctime (&t);
 }
@@ -336,7 +336,7 @@ static bool ldm_parse_tocblock (const u8 *data, struct tocblock *toc)
 	BUG_ON (!data || !toc);
 
 	if (MAGIC_TOCBLOCK != get_unaligned_be64(data)) {
-		ldm_crit ("Cannot find TOCBLOCK, database may be corrupt.");
+		ldm_debug ("Cannot find TOCBLOCK, database may be corrupt.");
 		return false;
 	}
 
@@ -344,6 +344,7 @@ static bool ldm_parse_tocblock (const u8 *data, struct tocblock *toc)
 		ldm_error ("TOCBLOCK checksum doesn't match\n");
 		return false;
 	}
+	ldm_debug ("Found valid TOCBLOCK");
 
 	//ldm_dump_tocblock (data);
 
@@ -601,8 +602,13 @@ static bool ldm_validate_tocblocks(struct parsed_partitions *state,
 			ldm_error("Disk read failed for TOCBLOCK %d.", i);
 			continue;
 		}
-		if (ldm_parse_tocblock(data, tb[nr_tbs]))
+		if (ldm_parse_tocblock(data, tb[nr_tbs])) {
+			ldm_debug("Found valid TOCKBLOCK at sector %lu", base+off[i]);
 			nr_tbs++;
+		}
+ 		else
+			ldm_debug("Cannot find TOCKBLOCK at sector %lu", base+off[i]);
+			
 		put_dev_sector(sect);
 	}
 	if (!nr_tbs) {
@@ -623,9 +629,12 @@ static bool ldm_validate_tocblocks(struct parsed_partitions *state,
 			goto err;
 		}
 	}
-	ldm_debug("Validated %d TOCBLOCKs successfully.", nr_tbs);
 	result = true;
+	ldm_info("Validated %d TOCBLOCKs successfully.", nr_tbs);
+	goto end;
 err:
+	ldm_crit("Cannot find any TOCBLOCKs, database may be corrupt" );
+end:
 	kfree(tb[1]);
 	return result;
 }
@@ -730,12 +739,12 @@ static bool ldm_validate_partition_table(struct parsed_partitions *state)
 	for (i = 0; i < 4; i++, p++)
 		if (SYS_IND (p) == LDM_PARTITION) {
 			result = true;
-			break;
+			ldm_info ("partition %d type %x LDM Windows Dynamic Disk", i, SYS_IND (p));
+//			break;  // there can be more than one
 		}
-
-	if (result)
-		ldm_debug ("Found W2K dynamic disk partition type.");
-
+		else
+			ldm_info ("partition %d type %x", i, SYS_IND (p));
+			
 out:
 	put_dev_sector (sect);
 	return result;
@@ -838,14 +847,16 @@ static bool ldm_create_data_partitions (struct parsed_partitions *pp,
  */
 static int ldm_relative(const u8 *buffer, int buflen, int base, int offset)
 {
-
 	base += offset;
-	if (!buffer || offset < 0 || base > buflen) {
+// [Linux-NTFS-Dev] [PATCH] partitions/ldm: Off by one in ldm_relative()
+// https://sourceforge.net/p/linux-ntfs/mailman/message/36440033/
+// should patch be used?
+	if (!buffer || offset < 0 || base > buflen) { // base >= buflen ?
 		if (!buffer)
 			ldm_error("!buffer");
 		if (offset < 0)
 			ldm_error("offset (%d) < 0", offset);
-		if (base > buflen)
+		if (base > buflen)  // base >= buflen ?
 			ldm_error("base (%d) > buflen (%d)", base, buflen);
 		return -1;
 	}
@@ -1682,6 +1693,7 @@ int ldm_partition(struct parsed_partitions *state)
 
 	/* All further references are relative to base (database start). */
 	base = ldb->ph.config_start;
+//	printf(" base = %lu\n", base);
 
 	/* Parse and check tocs and vmdb. */
 	if (!ldm_validate_tocblocks(state, base, ldb) ||

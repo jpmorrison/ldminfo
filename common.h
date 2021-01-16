@@ -29,6 +29,13 @@ typedef unsigned long long  u64;
 typedef unsigned short int  __le16;
 typedef unsigned int        __le32;
 
+#ifdef CONFIG_LBDAF
+typedef u64 sector_t;
+#else
+typedef unsigned long sector_t;
+#endif
+
+
 typedef int bool;
 #define true  1
 #define false 0

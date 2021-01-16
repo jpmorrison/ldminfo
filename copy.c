@@ -37,9 +37,10 @@
 /**
  * copy_database - Save the LDM Database to a file
  */
-void copy_database (int device, char *name, struct ldmdb *ldb)
+void copy_database (int device, char *name, struct ldmdb *ldb, int options)
 {
 	unsigned char *buffer;
+	size_t partsize = 4096;
 	int fpart = 0;	/* Partition table + primary PRIVHEAD */
 	int fdata = 0;	/* LDM Database */
 
@@ -72,11 +73,11 @@ void copy_database (int device, char *name, struct ldmdb *ldb)
 		printf ("lseek to %d failed\n", 0);
 		goto out;
 	}
-	if (read (device, buffer, 4096) < 4096) {
+	if (read (device, buffer, partsize) < partsize) {
 		printf ("Couldn't read the partition table and primary PRIVHEAD\n");
 		goto out;
 	}
-	if (write (fpart, buffer, 4096) < 4096) {
+	if (write (fpart, buffer, partsize) < partsize) {
 		printf ("Couldn't write the partition table and primary PRIVHEAD\n");
 		goto out;
 	}
