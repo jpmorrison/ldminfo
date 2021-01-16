@@ -9,10 +9,10 @@ see: https://github.com/mdbooth/libldm/blob/master/test/data/ldm-data.tar.xz
 The LDM driver is in the kernel and not included here
 
 The kernel LDM driver prints some warnings on certain dyanmic (LDM) disks
-The may be safe to ignore and hopefully ldminfo can help
+The errors may be safe to ignore and hopefully ldminfo can help troubleshoot.
 
 I am not an expert in LDM disks but these tools have help with troubleshooting 
-Windows disks. 
+Windows dynamic disks. 
 
 John Paul 
 
