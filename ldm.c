@@ -510,6 +510,7 @@ static bool ldm_validate_privheads(struct parsed_partitions *state,
 					&sect);
 		if (!data) {
 			ldm_crit ("Disk read failed.");
+			ldm_debug("Cannot find PRIVHEAD at sector %llu", (ph[0]->config_start+off[i]) );
 			goto out;
 		}
 		result = ldm_parse_privhead (data, ph[i]);
@@ -600,6 +601,7 @@ static bool ldm_validate_tocblocks(struct parsed_partitions *state,
 		data = read_part_sector(state, base + off[i], &sect);
 		if (!data) {
 			ldm_error("Disk read failed for TOCBLOCK %d.", i);
+			ldm_debug("Cannot find TOCKBLOCK at sector %lu", base+off[i]);
 			continue;
 		}
 		if (ldm_parse_tocblock(data, tb[nr_tbs])) {
@@ -739,11 +741,11 @@ static bool ldm_validate_partition_table(struct parsed_partitions *state)
 	for (i = 0; i < 4; i++, p++)
 		if (SYS_IND (p) == LDM_PARTITION) {
 			result = true;
-			ldm_info ("partition %d type %x LDM Windows Dynamic Disk", i, SYS_IND (p));
+			ldm_debug ("partition %d type %x LDM Windows Dynamic Disk", i, SYS_IND (p));
 //			break;  // there can be more than one
 		}
 		else
-			ldm_info ("partition %d type %x", i, SYS_IND (p));
+			ldm_debug ("partition %d type %x", i, SYS_IND (p));
 			
 out:
 	put_dev_sector (sect);

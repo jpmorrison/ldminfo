@@ -138,18 +138,20 @@ void put_dev_sector(Sector p)
 /**
  * read_part_sector
  */
-void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *sect)
+void * read_part_sector(struct parsed_partitions *state, u64 n, Sector *sect)
 {
-	if (n >= state->size)
+	if (n >= state->size) {
+		printf ("\tread_part_sector: n=%llu size=%llu\n", n, state->size);
 		return NULL;
+	}
 
-	size_t size = 512;
+	u64 size = 512;
 	n *= size;
 
 	sect->data = kmalloc (size, 0);
 
 	if (lseek (state->device, n, SEEK_SET) < 0) {
-		printf ("lseek to %ld failed\n", n);
+		printf ("lseek to %llu failed\n", n);
 	} else if (read (state->device, sect->data, size) < size) {
 		printf ("read failed\n");
 	}

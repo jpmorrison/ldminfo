@@ -90,7 +90,7 @@ void __kfree (const void *objp, const char *fn);
 u64 get_unaligned_be64 (const u8 *ptr);
 u32 get_unaligned_be32 (const u8 *ptr);
 u16 get_unaligned_be16 (const u8 *ptr);
-void *read_part_sector(struct parsed_partitions *state, size_t n, Sector *p);
+void *read_part_sector(struct parsed_partitions *state, u64 n, Sector *p);
 void put_dev_sector(Sector p);
 size_t strlcat(char *dest, const char *src, size_t count);
 void put_partition(struct parsed_partitions *pp, int part_num, sector_t a, sector_t b);

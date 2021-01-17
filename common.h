@@ -86,7 +86,7 @@ struct parsed_partitions {
 	int limit;
 	char *pp_buf;
 	struct ldmdb *ldb;
-	size_t size;
+	u64 size;
 	int device;
 };
 
